@@ -24,6 +24,7 @@
 package org.videolan.vlc;
 
 import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -42,12 +43,39 @@ import org.videolan.vlc.util.Constants;
 import org.videolan.vlc.util.Permissions;
 import org.videolan.vlc.util.Util;
 
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+import android.os.SystemClock;
+import android.util.Log;
+
 public class StartActivity extends FragmentActivity implements StoragePermissionsDelegate.CustomActionController {
 
     public final static String TAG = "VLC/StartActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        final Context ctx = this;
+
+        new Thread(new Runnable() {
+            public void run() {
+                Log.d(TAG, "Hello from transcode thread");
+
+                LibVLC libvlc = new LibVLC(ctx);
+                // HACK debug mediacodec encoder
+
+                Media media = new Media(libvlc, "/storage/0000-0000/test_input.mkv");
+                media.addOption(":sout=#transcode{vcodec=h264,maxwidth=1920,maxheight=1080,vb=12500000,venc=avcodec{bframes=3,keyint=250}}:file{mux=avformat{mux=matroska},access=file,dst=/storage/0000-0000/transcode_android.mkv}");
+
+                MediaPlayer player = new MediaPlayer(libvlc);
+                player.setMedia(media);
+                player.play();
+
+                SystemClock.sleep(700);
+            }
+        });
+
         super.onCreate(savedInstanceState);
         final Intent intent = getIntent();
         final boolean tv =  showTvUi();

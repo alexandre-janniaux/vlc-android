@@ -50,6 +50,13 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
 
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+import android.os.SystemClock;
+import android.util.Log;
+
+
 public class VLCApplication extends Application {
     public final static String TAG = "VLC/VLCApplication";
 
@@ -91,6 +98,30 @@ public class VLCApplication extends Application {
                 Dialog.setCallbacks(VLCInstance.get(), mDialogCallbacks);
             }
         });
+
+
+        final Context ctx = this;
+
+        SystemClock.sleep(5000);
+        new Thread(new Runnable() {
+            public void run() {
+                Log.e(TAG, "Hello from transcode thread");
+
+                LibVLC libvlc = new LibVLC(ctx);
+                // HACK debug mediacodec encoder
+
+                Media media = new Media(libvlc, "/sdcard/bbc_news_24-239.35.2.0_dvbsub.ts");
+                media.addOption(":sout=#transcode{acodec=none,vcodec=h264,maxwidth=1920,maxheight=1080,vb=12500000,venc=mediacodec_jni}:file{mux=avformat{mux=matroska},access=file,dst=/sdcard/test.mkv}");
+                media.addOption(":no-audio");
+
+                MediaPlayer player = new MediaPlayer(libvlc);
+                player.setMedia(media);
+                player.play();
+
+                SystemClock.sleep(70000);
+            }
+        }).start();
+
     }
 
     @Override
@@ -245,5 +276,10 @@ public class VLCApplication extends Application {
      */
     public static boolean isForeground() {
         return ProcessLifecycleOwner.get().getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+    }
+
+    public void finalize() throws Throwable {
+        Log.d(TAG, "Removing VLC APPLICATION");
+        super.finalize();
     }
 }
