@@ -111,7 +111,8 @@ public class VLCApplication extends Application {
                 // HACK debug mediacodec encoder
 
                 Media media = new Media(libvlc, "/sdcard/bbc_news_24-239.35.2.0_dvbsub.ts");
-                media.addOption(":sout=#transcode{acodec=none,vcodec=h264,maxwidth=1920,maxheight=1080,vb=12500000,venc=mediacodec_jni}:file{mux=avformat{mux=matroska},access=file,dst=/sdcard/test.mkv}");
+                //media.addOption(":sout=#transcode{acodec=none,vcodec=h264,maxwidth=1920,maxheight=1080,vb=125000,venc=mediacodec_jni}:http{dst=:8089/test.mpg}");//file{mux=avformat{mux=matroska},access=file,dst=/sdcard/test.mkv}");
+                media.addOption(":sout=#transcode{acodec=none,vcodec=h264,maxwidth=1920,maxheight=1080,vb=125000,venc=mediacodec_jni}:file{mux=mp4,access=file,dst=/sdcard/test.mp4}");
                 media.addOption(":no-audio");
 
                 MediaPlayer player = new MediaPlayer(libvlc);
