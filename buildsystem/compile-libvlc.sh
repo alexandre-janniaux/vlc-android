@@ -560,15 +560,12 @@ avlc_checkfail "vlc: make failed"
 make install
 avlc_checkfail "vlc: make install failed"
 
-cd $SRC_DIR
 
 ##################
 # libVLC modules #
 ##################
 
 REDEFINED_VLC_MODULES_DIR=${VLC_BUILD_DIR}/install/lib/vlc/plugins
-rm -rf ${REDEFINED_VLC_MODULES_DIR}
-mkdir -p ${REDEFINED_VLC_MODULES_DIR}
 
 echo "Generating static module list"
 blacklist_regexp=
@@ -582,11 +579,10 @@ do
     fi
 done
 
-VLC_MODULES=$(avlc_find_modules ${VLC_BUILD_DIR}/modules)
+VLC_MODULES=$(avlc_find_modules "${REDEFINED_VLC_MODULES_DIR}")
 DEFINITION="";
 BUILTINS="const void *vlc_static_modules[] = {\n";
 for file in $VLC_MODULES; do
-    outfile=${REDEFINED_VLC_MODULES_DIR}/$(basename $file)
     name=$(echo $file | sed 's/.*\.libs\/lib//' | sed 's/_plugin\.a//');
     symbols=$("${CROSS_TOOLS}nm" -g $file)
 
@@ -594,26 +590,6 @@ for file in $VLC_MODULES; do
     entry=$(avlc_get_symbol "$symbols" _)
     copyright=$(avlc_get_symbol "$symbols" copyright)
     license=$(avlc_get_symbol "$symbols" license)
-    cat <<EOF > ${REDEFINED_VLC_MODULES_DIR}/syms
-AccessOpen AccessOpen__$name
-AccessClose AccessClose__$name
-StreamOpen StreamOpen__$name
-StreamClose StreamClose__$name
-OpenDemux OpenDemux__$name
-CloseDemux CloseDemux__$name
-DemuxOpen DemuxOpen__$name
-DemuxClose DemuxClose__$name
-OpenFilter OpenFilter__$name
-CloseFilter CloseFilter__$name
-Open Open__$name
-Close Close__$name
-$entry vlc_entry__$name
-$copyright vlc_entry_copyright__$name
-$license vlc_entry_license__$name
-EOF
-    ${CROSS_TOOLS}objcopy --redefine-syms ${REDEFINED_VLC_MODULES_DIR}/syms $file $outfile
-    avlc_checkfail "objcopy failed"
-
     DEFINITION=$DEFINITION"int vlc_entry__$name (int (*)(void *, void *, int, ...), void *);\n";
     BUILTINS="$BUILTINS vlc_entry__$name,\n";
 done;
@@ -653,9 +629,9 @@ LOCAL_SRC_FILES := libvlcjni-modules.c libvlcjni-symbols.c dummy.cpp
 LOCAL_LDFLAGS := -L$(VLC_CONTRIB)/lib
 LOCAL_LDLIBS := \
     $(VLC_MODULES) \
-    $(VLC_BUILD_DIR)/lib/.libs/libvlc.a \
-    $(VLC_BUILD_DIR)/src/.libs/libvlccore.a \
-    $(VLC_BUILD_DIR)/compat/.libs/libcompat.a \
+    $(VLC_BUILD_DIR)/install/lib/libvlc.a \
+    $(VLC_BUILD_DIR)/install/lib/libvlccore.a \
+    $(VLC_BUILD_DIR)/install/lib/vlc/libcompat.a \
     $(VLC_CONTRIB_LDFLAGS) \
     -ldl -lz -lm -llog \
     -la52 -ljpeg \
