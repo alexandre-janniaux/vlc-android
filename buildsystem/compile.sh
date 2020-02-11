@@ -1,6 +1,19 @@
 #! /bin/sh
-set -e
+set -eu
 
+: ${KEYSTORE_FILE:=}
+: ${GRADLE_SETUP:=}
+: ${BUILD_MEDIALIB:=0}
+: ${NO_ML:=0}
+: ${TEST:=0}
+: ${STUB:=0}
+: ${SIGNED_RELEASE=0}
+: ${BUILD_LIBVLC=0}
+: ${PASSWORD_KEYSTORE=}
+RELEASE=0
+PUBLISH=0
+BYPASS_VLC_SRC_CHECKS=0
+RUN=0
 
 #############
 # FUNCTIONS #
@@ -310,13 +323,29 @@ compile() {
     mkdir -p $OUT_DBG_DIR
 
     if [ "$BUILD_MEDIALIB" != 1 -o ! -d "libvlc/jni/libs/$1" ]; then
-        AVLC_SOURCED=1 . buildsystem/compile-libvlc.sh
-        avlc_build
+        ANDROID_ABI=${ANDROID_ABI} \
+        ./vlc/extras/package/android/build.sh
+
+        # TODO: move these variables
+        VLC_BUILD_DIR=$(realpath ./vlc/build-android-arm-linux-androideabi)
+        VLC_SRC_DIR=$(realpath ./vlc/)
+        VLC_OUT_PATH="${VLC_BUILD_DIR}/install"
+        VLC_OUT_LDLIBS="-lvlc" # ${VLC_SRC_DIR}/contrib/arm-linux-androideabi/lib/libiconv.a"
+        VLC_OUT_LDFLAGS="-L${VLC_BUILD_DIR}/ndk/libs/${ANDROID_ABI}"
+        NDK_DEBUG=1 #TODO
+        NDK_BUILD=$ANDROID_NDK/ndk-build
+        ANDROID_API=21
+
+        echo "VLC_BUILD_DIR=$VLC_BUILD_DIR"
+        echo "VLC_SRC_DIR=$VLC_SRC_DIR"
+        echo "VLC_OUT_PATH=$VLC_OUT_PATH"
+        echo "VLC_OUT_LDLIBS=$VLC_OUT_LDLIBS"
 
         $NDK_BUILD -C libvlc \
             VLC_SRC_DIR="$VLC_SRC_DIR" \
             VLC_BUILD_DIR="$VLC_BUILD_DIR" \
             VLC_OUT_LDLIBS="$VLC_OUT_LDLIBS" \
+            VLC_OUT_LDFLAGS="$VLC_OUT_LDFLAGS" \
             APP_BUILD_SCRIPT=jni/Android.mk \
             APP_PLATFORM=android-${ANDROID_API} \
             APP_ABI=${ANDROID_ABI} \
@@ -328,8 +357,8 @@ compile() {
             cp -r $VLC_OUT_PATH/libs/${ANDROID_ABI} libvlc/jni/libs/${ANDROID_ABI} build/tmp
         fi
 
-        cp -a $VLC_OUT_PATH/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
-        cp -a ./libvlc/jni/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
+        #cp -a $VLC_OUT_PATH/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
+        #cp -a ./libvlc/jni/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
     fi
 
     if [ "$NO_ML" != 1 ]; then
@@ -366,7 +395,7 @@ if [ "$ANDROID_ABI" = "all" ]; then
 
     GRADLE_VLC_SRC_DIRS="''"
 else
-    compile
+    compile ""
     GRADLE_VLC_SRC_DIRS="$VLC_OUT_PATH/libs"
 fi
 
