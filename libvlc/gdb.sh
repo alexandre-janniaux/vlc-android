@@ -4,6 +4,17 @@ SCRIPT_PATH=$(dirname $0)
 TMP_PATH="$SCRIPT_PATH"/.gdb
 NDK_GDB_ARGS="--force"
 
+SOLIB_SEARCH_PATH=
+for $arch in $(ls "$SCRIPT_PATH/../vlc/" | grep build-android-) do
+SOLIB_SEARCH_PATH="${SOLIB_SEARCH_PATH}:${SCRIPT_PATH}/../vlc/$ARCH/ndk/libs"
+SOLIB_SEARCH_PATH="${SOLIB_SEARCH_PATH}:${SCRIPT_PATH}/../vlc/$ARCH/ndk/obj"
+done;
+SOLIB_SEARCH_PATH="${SOLIB_SEARCH_PATH}:${SCRIPT_PATH}/../medialibrary/jni/libs"
+SOLIB_SEARCH_PATH="${SOLIB_SEARCH_PATH}:${SCRIPT_PATH}/../medialibrary/jni/obj"
+SOLIB_SEARCH_PATH="${SOLIB_SEARCH_PATH}:${SCRIPT_PATH}/../jni"
+
+NDK_GDB_ARGS="${NDK_GDB_ARGS} -x \"set solib-search-path '${SOLIB_SEARCH_PATH}'\""
+
 while [ $# -gt 0 ]; do
     case $1 in
         -s)
@@ -36,7 +47,17 @@ cp -r "$SCRIPT_PATH"/../libvlc/jni/$DEST/*.so "$TMP_PATH/$DEST"
 cp -r "$SCRIPT_PATH"/../vlc/build-android-*linux-android*/ndk/$DEST/*.so "$TMP_PATH/$DEST"
 cp -r "$SCRIPT_PATH"/../medialibrary/jni/$DEST/*.so "$TMP_PATH/$DEST"
 
+#cp -r "$SCRIPT_PATH"/../vlc/build-android-*linux-android*/ndk/libs $TMP_PATH
+#cp -r "$SCRIPT_PATH"/../vlc/build-android-*linux-android*/ndk/obj $TMP_PATH
+#
+#cp -r "$SCRIPT_PATH"/../medialibrary/jni/libs "$TMP_PATH"
+#cp -r "$SCRIPT_PATH"/../medialibrary/jni/obj "$TMP_PATH"
+#
+#ln -s "$TMP_PATH"/obj "$TMP_PATH"/jni
 
-cp "$ANDROID_MANIFEST" "$TMP_PATH"
+#cp "$SCRIPT_PATH"/jni/Android.mk "$TMP_PATH"/jni
+#echo "APP_ABI := all" > "$TMP_PATH"/jni/Application.mk
 
-(cd "$TMP_PATH" && bash $ANDROID_NDK/ndk-gdb $NDK_GDB_ARGS)
+#cp "$ANDROID_MANIFEST" "$TMP_PATH"
+
+(bash $ANDROID_NDK/ndk-gdb $NDK_GDB_ARGS)
