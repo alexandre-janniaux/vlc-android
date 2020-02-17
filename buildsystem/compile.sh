@@ -325,8 +325,27 @@ compile() {
     OUT_DBG_DIR=.dbg/${ANDROID_ABI}
     mkdir -p $OUT_DBG_DIR
 
+    # Set up ABI variables
+    TARGET_TUPLE=""
+    if [ "${ANDROID_ABI}" = "x86" ] ; then
+        TARGET_TUPLE="i686-linux-android"
+    elif [ "${ANDROID_ABI}" = "x86_64" ] ; then
+        TARGET_TUPLE="x86_64-linux-android"
+    elif [ "${ANDROID_ABI}" = "arm64-v8a" ] ; then
+        TARGET_TUPLE="aarch64-linux-android"
+    elif [ "${ANDROID_ABI}" = "armeabi-v7a" ] ; then
+        TARGET_TUPLE="arm-linux-androideabi"
+    else
+        echo "Please pass the ANDROID ABI to the correct architecture, using
+                    compile-libvlc.sh -a ARCH
+        ARM:     (armeabi-v7a|arm)
+        ARM64:   (arm64-v8a|arm64)
+        X86:     x86, x86_64"
+        exit 1
+    fi
+
     # TODO: move these variables
-    VLC_BUILD_DIR=$(realpath ./vlc/build-android-arm-linux-androideabi)
+    VLC_BUILD_DIR=$(realpath ./vlc/build-${TARGET_TUPLE}/)
     VLC_SRC_DIR=$(realpath ./vlc/)
     VLC_OUT_PATH="${VLC_BUILD_DIR}/install"
     VLC_OUT_LDLIBS="-lvlc"
