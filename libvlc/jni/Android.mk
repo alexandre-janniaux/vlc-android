@@ -9,7 +9,7 @@ LOCAL_SRC_FILES += libvlcjni-vlcobject.c
 LOCAL_SRC_FILES += libvlcjni-media.c libvlcjni-medialist.c libvlcjni-mediadiscoverer.c libvlcjni-rendererdiscoverer.c
 LOCAL_SRC_FILES += libvlcjni-dialog.c
 LOCAL_SRC_FILES += std_logger.c
-LOCAL_C_INCLUDES := $(VLC_SRC_DIR)/include $(VLC_BUILD_DIR)/include
+LOCAL_C_INCLUDES := $(VLC_SRC_DIR)/include $(VLC_BUILD_DIR)/install/include
 LOCAL_CFLAGS := -std=c11
 LOCAL_LDLIBS := -llog $(VLC_OUT_LDLIBS)
 LOCAL_LDFLAGS := $(VLC_OUT_LDFLAGS)

@@ -345,7 +345,7 @@ compile() {
     fi
 
     # TODO: move these variables
-    VLC_BUILD_DIR=$(realpath ./vlc/build-${TARGET_TUPLE}/)
+    VLC_BUILD_DIR=$(realpath ./vlc/build-android-${TARGET_TUPLE}/)
     VLC_SRC_DIR=$(realpath ./vlc/)
     VLC_OUT_PATH="${VLC_BUILD_DIR}/install"
     VLC_OUT_LDLIBS="-lvlc"
