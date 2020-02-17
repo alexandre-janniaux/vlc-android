@@ -160,6 +160,7 @@ public class LibVLC extends VLCObject<ILibVLC.Event> implements ILibVLC {
 
         try {
             System.loadLibrary("c++_shared");
+            System.loadLibrary("vlccore");
             System.loadLibrary("vlc");
             System.loadLibrary("vlcjni");
         } catch (UnsatisfiedLinkError ule) {
