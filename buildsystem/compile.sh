@@ -354,11 +354,6 @@ compile() {
     NDK_BUILD=$ANDROID_NDK/ndk-build
     ANDROID_API=21
 
-
-    #if [ "$BUILD_MEDIALIB" != 1 -o ! -d "libvlc/jni/libs/$1" ]; then
-
-    #AVLC_SOURCED=1 source "$SCRIPT_PATH/compile-libvlc.sh"
-
     ANDROID_ABI=${ANDROID_ABI} \
     ./vlc/extras/package/android/build.sh
 
@@ -366,7 +361,6 @@ compile() {
     echo "VLC_SRC_DIR=$VLC_SRC_DIR"
     echo "VLC_OUT_PATH=$VLC_OUT_PATH"
     echo "VLC_OUT_LDLIBS=$VLC_OUT_LDLIBS"
-
 
     $NDK_BUILD -C libvlc \
         VLC_SRC_DIR="$VLC_SRC_DIR" \
@@ -380,15 +374,9 @@ compile() {
         NDK_TOOLCHAIN_VERSION=clang \
         NDK_DEBUG=${NDK_DEBUG}
 
-       #"${VLC_BUILD_DIR}/ndk/libs/${ANDROID_ABI}/libvlcmodules_plugin.so" \
-
     if [ "$copy_tmp" = "--copy-tmp=libvlc" ];then
         cp -r $VLC_OUT_PATH/libs/${ANDROID_ABI} libvlc/jni/libs/${ANDROID_ABI} build/tmp
     fi
-
-        #cp -a $VLC_OUT_PATH/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
-        #cp -a ./libvlc/jni/obj/local/${ANDROID_ABI}/*.so ${OUT_DBG_DIR}
-    #fi
 
     if [ "$NO_ML" != 1 ]; then
         ANDROID_ABI=$ANDROID_ABI \
