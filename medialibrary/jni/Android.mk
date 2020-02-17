@@ -3,5 +3,6 @@ LOCAL_SRC_FILES := medialibrary.cpp AndroidMediaLibrary.cpp AndroidDeviceLister.
 LOCAL_MODULE    := mla
 LOCAL_MODULE_FILENAME := libmla
 LOCAL_LDLIBS    := $(MEDIALIBRARY_LDLIBS) -llog
+LOCAL_LDFLAGS   := $(VLC_OUT_LDFLAGS)
 LOCAL_C_INCLUDES := $(MEDIALIBRARY_INCLUDE_DIR)
 include $(BUILD_SHARED_LIBRARY)

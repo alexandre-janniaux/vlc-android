@@ -662,7 +662,3 @@ avlc_checkfail "ndk-build libvlc failed"
 rm -f $VLC_OUT_PATH/libs/${ANDROID_ABI}/gdb*
 
 } # avlc_build()
-
-if [ "$AVLC_SOURCED" != "1" ]; then
-    avlc_build
-fi
